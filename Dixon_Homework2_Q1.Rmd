@@ -1,0 +1,191 @@
+---
+title: "Dixon_Homework 2_STAT 591"
+author: "Jerome Dixon"
+date: "2/25/2021"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(magrittr)
+
+```
+
+
+1. A researcher is interested in the proportion of marijuana users who also try opioids. The
+researcher has a facility where she has access to regular marijuana users and asks the
+following question on a survey: “I have tried opioids at least once in the last month.”
+
+a. (5 pts) The researcher believes that the proportion 𝜃 is likely to be around 0.12
+and is 95% sure that the value is less than 0.2. Find the values of 𝛼 and 𝛽 that
+meets this requirement. (note that different people may have different values that
+meet these criteria.
+
+```{r}
+
+# 𝜃~ 0 < .12 < .2
+# Mean = alpha/(alpha + beta) => .12 = x1/(x1+x2)
+# Maximum = (alpha - 1) / (alpha + beta -2) => .2 = x1-1/(x1 + x2 -2)
+# Put in matrix format and solve for system of equations
+
+A <- cbind(c(7.33, 4),c(-1, -1))
+
+b <- cbind(c(0, -3))
+
+alpha_Beta1 <- solve(A,b)
+
+X1 <- seq(0, 1, by=0.01)
+
+Y1 <- dbeta(X1, alpha_Beta1[1], alpha_Beta1[2])
+
+plot(X1, Y1, type= 'l', col = 'blue',
+     main = paste("Alpha = ", round(alpha_Beta1[1],3), " ", "Beta = ", round(alpha_Beta1[2],3) ))
+
+
+```
+
+
+
+
+b. (5 pts) Another researcher with more experience thinks the value is likely to be
+0.11 and is 95% sure that it is between 0.05 and 0.16. Find the values of 𝛼 and 𝛽
+that meets this requirement. (note that different people may have different values
+that meet these criteria.
+
+
+```{r}
+
+# 𝜃~ 0.05 < .11 < .16
+# Mean = alpha/(alpha + beta) => .11 = x1/(x1+x2)
+# Maximum = (alpha - 1) / (alpha + beta -2) => .16 = x1-1/(x1 + x2 -2)
+# Put in matrix format and solve for system of equations
+
+A <- cbind(c(8.09, 5.25),c(-1, -1))
+
+b <- cbind(c(0, -4.25))
+
+alpha_Beta2 <- solve(A,b)
+
+X1 <- seq(0, 1, by=0.01)
+
+# Shifting distribution by .05
+new_alpha <- alpha_Beta2[1] + .05
+new_beta <- alpha_Beta2[2] - .05
+
+Y2 <- dbeta(X1, new_alpha, new_beta)
+
+plot(X1, Y2, type= 'l', col = 'blue',
+     main = paste("Alpha = ", round(new_alpha,3), " ", "Beta = ", round(new_beta,3) ))
+
+
+```
+
+c. (5 pts) A study is performed and of 96 subjects 12 agree with the statement.
+Write down the likelihood for the experiment.
+
+Likelihood = Beta(𝛼+ # of Successes, 𝛽 + # of samples(n) - # of Successes)
+
+
+d. (5 pts) Find the posterior distributions for 𝜃 for items a. and b. above. Note you
+should have two answers.
+
+
+
+
+```{r}
+
+n = 96
+bernoulli_success = 12
+
+posterior_alpha1 <- alpha_Beta1[1] + bernoulli_success
+posterior_beta1 <- alpha_Beta1[2] + n - bernoulli_success
+
+posterior_alpha2 <- new_alpha + bernoulli_success
+posterior_beta2 <- new_beta + n - bernoulli_success
+
+
+
+posterior_distribution1 = beta(posterior_alpha1, posterior_beta1)
+
+posterior_distribution2 = beta(posterior_alpha2, posterior_beta2)
+
+
+posterior_distribution1; posterior_distribution2
+
+
+```
+
+
+e. (5 pts) Find the posterior means and standard deviations for 𝜃 for items a. and b.
+above. Note you should have two answers.
+
+```{r Posterior Means}
+
+
+
+posterior_means1 <- posterior_alpha1 / posterior_alpha1 + posterior_beta1
+
+posterior_means2 <- posterior_alpha2 / posterior_alpha2 + posterior_beta2
+
+
+posterior_means1; posterior_means2
+
+```
+```{r Standard Deviations}
+
+sd1 <- sqrt(posterior_alpha1 * posterior_beta1 / posterior_alpha1 + posterior_beta1^2 * (posterior_alpha1 + posterior_beta1 + 1))
+
+sd2 <- sqrt(posterior_alpha2 * posterior_beta2 / posterior_alpha2 + posterior_beta2^2 * (posterior_alpha2 + posterior_beta2 + 1))
+
+
+sd1; sd2
+
+```
+
+
+
+f. (5 pts) Find 95% credible intervals for 𝜃 for items a. and b. above. Note you
+should have two answers. Be sure to interpret the intervals.
+
+```{r}
+
+cred_interval1 <- qbeta(c(0.05,.95),  posterior_alpha1, posterior_beta1)
+
+cred_interval2 <- qbeta(c(0.05,.95),  posterior_alpha2, posterior_beta2)
+
+cred_interval1; cred_interval2
+
+
+```
+
+
+
+
+g. (5 pts) Create plots with the prior and posterior distributions for 𝜃 for each of the
+items a. and b. above.
+
+```{r Plots}
+
+
+post1 <- dbeta(X1, posterior_alpha1, posterior_beta1)
+
+prior1 <- plot(X1, Y1, type= 'l', col = 'blue',
+     main = paste("Alpha Prior = ", round(alpha_Beta1[1],3), " ", "Beta Prior = ", round(alpha_Beta1[2],3),
+     sub = paste("\nAlpha Post = ", round(posterior_alpha1,3), " ", "Beta Post = ", round(posterior_beta1,3) )))
+lines(X1, post1, col = 'red')
+
+
+post2 <- dbeta(X1, posterior_alpha2, posterior_beta2)
+prior2 <- plot(X1, Y2, type= 'l', col = 'blue',
+     main = paste("Alpha Prior = ", round(new_alpha,3), " ", "Beta Prior = ", round(new_beta,3) ,
+     sub = paste("\nAlpha Post = ", round(posterior_alpha2,3), " ", "Beta Post = ", round(posterior_beta2,3) )))
+lines(X1, post2, col = 'red')
+
+
+```
+
+
+
+
