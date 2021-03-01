@@ -1,0 +1,109 @@
+---
+title: "Dixon_Homework2_Q3"
+author: "Jerome Dixon"
+date: "2/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+3. A researcher is interested in developing a statistical learning tool for antibiotic success
+rates for a resistant strain of bacteria. Since this is a very dangerous strain care needs to
+be taken to use the minimum number of petri dishes with the bacteria. It is assumed that
+a priori that the success rate is 50-50 with probability of no success is zero as well as
+probability of full success is zero.
+
+a. What is a reasonable prior distribution?
+
+Beta = (5,5)
+
+
+b. The following sequence of success rates in petri dishes 𝑋 =
+1,0,1,0,1,1,1,1,0,1,0,0,1,0,0,1,0,1,1,1,0.
+
+
+c. What is the posterior distribution once the first observation has been observed?
+
+```{r}
+
+n = 1
+bernoulli_success = 1
+
+posterior_alpha1 <- 5 + bernoulli_success
+posterior_beta1 <- 5 + n - bernoulli_success
+
+
+posterior_distribution_n1 = beta(posterior_alpha1, posterior_beta1)
+
+
+posterior_distribution_n1
+
+
+```
+
+d. What is the posterior distribution once the first two observations have been
+observed?
+
+```{r}
+
+n = 2
+bernoulli_success = 1
+
+posterior_alpha2 <- 5 + bernoulli_success
+posterior_beta2 <- 5 + n - bernoulli_success
+
+
+posterior_distribution_n2 = beta(posterior_alpha2, posterior_beta2)
+
+
+posterior_distribution_n2
+
+
+```
+
+e. What is the posterior distribution once the first three observations have been
+observed?
+
+```{r}
+
+n = 3
+bernoulli_success = 2
+
+posterior_alpha3 <- 5 + bernoulli_success
+posterior_beta3 <- 5 + n - bernoulli_success
+
+
+posterior_distribution_n3 = beta(posterior_alpha3, posterior_beta3)
+
+
+posterior_distribution_n3
+
+
+```
+
+f. Continue this process for all of the observations and create 95% credible intervals
+at each step.
+
+```{r}
+
+test <- c(1,0,1,0,1,1,1,1,0,1,0,0,1,0,0,1,0,1,1,1,0)
+X1 <- seq(0, 1, by=0.01)
+
+n = 21
+bernoulli_success = 12
+theta <- X1
+
+likelihood = function(n, bernoulli_success, theta){
+  return(theta^bernoulli_success*(1-theta)*(n - bernoulli_success)) }
+
+plot(theta, likelihood(n,bernoulli_success, theta))
+
+
+```
+
+
+g. At which step did the 95% credible interval go completely above 0.5?
+
+At Step 19 it crosses .5

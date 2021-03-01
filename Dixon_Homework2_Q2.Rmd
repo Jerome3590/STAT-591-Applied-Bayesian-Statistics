@@ -1,0 +1,173 @@
+---
+title: "Dixon_Homework2_Q2"
+author: "Jerome Dixon"
+date: "2/25/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(magrittr)
+```
+
+2. A manufacturer is interested in the proportion 𝜃 of defective parts supplied by a supplier.
+
+a. (5 pts) The supplier claims that they maintain a 95% or better acceptable part rate.
+Assuming that they are correct 90% of the time, what are the values of 𝛼 and 𝛽
+that meets this requirement.
+
+```{r}
+
+# 𝜃~ 0 < .9 < .95
+# Mean = alpha/(alpha + beta) => .9 = x1/(x1+x2)
+# Maximum = (alpha - 1) / (alpha + beta -2) => .95 = x1-1/(x1 + x2 -2)
+# Put in matrix format and solve for system of equations
+
+A <- cbind(c(.111, .053),c(-1, -1))
+
+b <- cbind(c(0, -.947))
+
+alpha_Beta1 <- solve(A,b)
+
+X1 <- seq(0, 1, by=0.01)
+
+Y1 <- dbeta(X1, alpha_Beta1[1], alpha_Beta1[2])
+
+plot(X1, Y1, type= 'l', col = 'blue',
+     main = paste("Alpha = ", round(alpha_Beta1[1],3), " ", "Beta = ", round(alpha_Beta1[2],3) ))
+
+
+```
+
+
+b. (5 pts) The manufacturer believes that this claim is only correct 50% of the time,
+what are the values of 𝛼 and 𝛽 that meets this requirement.
+
+```{r}
+
+# 𝜃~ 0 < .9 < .95
+# Mean = alpha/(alpha + beta) => .5 = x1/(x1+x2)
+# Maximum = (alpha - 1) / (alpha + beta -2) => .95 = x1-1/(x1 + x2 -2)
+# Put in matrix format and solve for system of equations
+
+A <- cbind(c(1, .053),c(-1, -1))
+
+b <- cbind(c(0, -.947))
+
+alpha_Beta2 <- solve(A,b)
+
+X1 <- seq(0, 1, by=0.01)
+
+Y2 <- dbeta(X1, alpha_Beta2[1], alpha_Beta2[2])
+
+plot(X1, Y2, type= 'l', col = 'blue',
+     main = paste("Alpha = ", round(alpha_Beta2[1],3), " ", "Beta = ", round(alpha_Beta2[2],3) ))
+
+
+```
+
+
+
+
+c. (5 pts) Plot the two prior distributions for 𝜃 on the same plot.
+```{r}
+
+plot(X1, Y1, type= 'l', col = 'blue',
+     main = paste("Alpha_Supplier = ", round(alpha_Beta1[1],3), " ", "Beta_Supplier = ", round(alpha_Beta1[2],3),
+     sub = paste("\nAlpha_Mfr Post = ", round(alpha_Beta2[1],3), " ", "Beta_Mfr = ", round(alpha_Beta2[1],3) )))
+lines(X1, Y2, col = 'red')
+
+
+
+```
+
+
+
+d. (5 pts) The manufacturer sends a quality engineer to take samples from a bin of
+parts for the recent shipment. He samples parts until he obtains 3 defective parts
+and counts the number of acceptable parts until the 3 defectives are obtained.
+What is the random variable and what is the likelihood for this experiment?
+
+Random variable = # of independent trials until the first successful defect
+
+Likelihood = (1-p)^x * p  for x=0,2,3,4,5,..
+
+
+e. (5 pts) Find the posterior distribution for 𝜃 using the prior distributions from
+items a. and b. above.
+
+```{r}
+
+x = 3
+p1 = .1
+p2 = .5
+
+posterior_distro1 = dgeom(x, p1)
+
+posterior_distro2 = dgeom(x, p2)
+
+posterior_distro1 ; posterior_distro2
+
+
+```
+
+
+f. (5 pts) Find the posterior means and standard deviations for 𝜃 for items a. and b.
+above. Note you should have two answers.
+
+```{r}
+
+mean1 = (1-p1)/p1
+mean2 = (1-p2)/p2
+
+
+mean1; mean2
+
+sd1 = sqrt((1-p1)/p1^2)
+sd2 = sqrt((1-p2)/p2^2)
+
+mean1; mean2
+sd1; sd2
+
+
+```
+
+
+g. (5 pts) Find 95% credible intervals for 𝜃 for items a. and b. above. Note you
+should have two answers. Be sure to interpret the intervals.
+
+```{r}
+
+cred_interval1 <- qgeom(c(0.05,.95), p1)
+
+cred_interval2 <- qgeom(c(0.05,.95), p2)
+
+cred_interval1; cred_interval2
+
+
+```
+
+
+
+h. (5 pts) Create plots with the prior and posterior distributions for 𝜃 for each of the
+items a. and b. above. You should have two plots here.
+
+
+```{r}
+
+g1 <- dgeom(X1, posterior_distro1)
+
+plot(X1, Y1, type= 'l', col = 'blue')
+lines(X1, g1, col = 'red')
+
+
+g2 <- dgeom(X1, posterior_distro2)
+
+plot2 <- plot(X1, Y2, type= 'l', col = 'blue')
+lines(X1, g2, col = 'red')
+
+
+
+
+```
+
